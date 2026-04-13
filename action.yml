@@ -1,0 +1,71 @@
+name: 'W3 Uniswap Action'
+description: 'Uniswap V3 swaps and concentrated liquidity management'
+author: 'w3-io'
+
+inputs:
+  command:
+    description: 'Operation: swap, get-position, mint, increase-liquidity, decrease-liquidity, collect'
+    required: true
+  chain:
+    description: 'Target chain: ethereum, base, arbitrum, polygon, optimism'
+    required: true
+  rpc-url:
+    description: 'Custom RPC URL (recommended for reliability)'
+    required: false
+
+  # Swap inputs
+  token-in:
+    description: 'Input token address (swap, mint token0)'
+    required: false
+  token-out:
+    description: 'Output token address (swap, mint token1)'
+    required: false
+  fee:
+    description: 'Pool fee tier: 100, 500, 3000, or 10000'
+    required: false
+  amount-in:
+    description: 'Amount of input token (in smallest unit)'
+    required: false
+  amount-out-minimum:
+    description: 'Minimum output amount (slippage protection)'
+    required: false
+    default: '0'
+  recipient:
+    description: 'Recipient address for swap output or minted position'
+    required: false
+
+  # Position inputs
+  token-id:
+    description: 'NFT position token ID'
+    required: false
+  tick-lower:
+    description: 'Lower tick bound for concentrated liquidity'
+    required: false
+  tick-upper:
+    description: 'Upper tick bound for concentrated liquidity'
+    required: false
+  amount0-desired:
+    description: 'Desired amount of token0 to add'
+    required: false
+  amount1-desired:
+    description: 'Desired amount of token1 to add'
+    required: false
+  amount0-min:
+    description: 'Minimum amount of token0 (slippage protection)'
+    required: false
+    default: '0'
+  amount1-min:
+    description: 'Minimum amount of token1 (slippage protection)'
+    required: false
+    default: '0'
+  liquidity:
+    description: 'Amount of liquidity to remove'
+    required: false
+
+outputs:
+  result:
+    description: 'JSON result of the operation'
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
