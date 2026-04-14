@@ -242,3 +242,12 @@ bridge-allow: [ethereum/call-contract]
 | `MISSING_TOKEN_ID`  | token-id input missing      |
 | `MISSING_LIQUIDITY` | liquidity input missing     |
 | `BRIDGE_ERROR`      | Bridge call failed          |
+
+## Future work
+
+Features not included in v0.1.0:
+
+- **exactOutput / exactOutputSingle** — Specify the desired output amount and let the router determine the input. Inverse of our current exactInput swaps.
+- **Flash loans** — Uniswap V3 pools support flash loans for arbitrage and liquidation workflows. Pool-level feature, niche use case.
+- **Pool info (slot0, TWAP oracle)** — Read pool state including current price, tick, and time-weighted average prices. Useful for analytics and monitoring workflows, not trading.
+- **Uniswap V4** — New architecture with hooks, singleton pool manager, and different contract interfaces. Will be a separate action when V4 is widely adopted.
