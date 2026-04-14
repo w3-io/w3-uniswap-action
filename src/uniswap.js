@@ -92,7 +92,10 @@ function defaultDeadline() {
 /**
  * Execute a single-hop exact-input swap via SwapRouter02.
  */
-export async function swap(chain, { tokenIn, tokenOut, fee, amountIn, amountOutMinimum, recipient, rpcUrl }) {
+export async function swap(
+  chain,
+  { tokenIn, tokenOut, fee, amountIn, amountOutMinimum, recipient, rpcUrl },
+) {
   if (!tokenIn) throw new UniswapError('MISSING_TOKEN_IN', 'token-in is required')
   if (!tokenOut) throw new UniswapError('MISSING_TOKEN_OUT', 'token-out is required')
   if (!fee) throw new UniswapError('MISSING_FEE', 'fee is required')
@@ -175,8 +178,12 @@ export async function getPosition(chain, { tokenId, rpcUrl }) {
     tickLower: String(Array.isArray(data) ? data[5] : data?.tickLower || '0'),
     tickUpper: String(Array.isArray(data) ? data[6] : data?.tickUpper || '0'),
     liquidity: String(Array.isArray(data) ? data[7] : data?.liquidity || '0'),
-    feeGrowthInside0LastX128: String(Array.isArray(data) ? data[8] : data?.feeGrowthInside0LastX128 || '0'),
-    feeGrowthInside1LastX128: String(Array.isArray(data) ? data[9] : data?.feeGrowthInside1LastX128 || '0'),
+    feeGrowthInside0LastX128: String(
+      Array.isArray(data) ? data[8] : data?.feeGrowthInside0LastX128 || '0',
+    ),
+    feeGrowthInside1LastX128: String(
+      Array.isArray(data) ? data[9] : data?.feeGrowthInside1LastX128 || '0',
+    ),
     tokensOwed0: String(Array.isArray(data) ? data[10] : data?.tokensOwed0 || '0'),
     tokensOwed1: String(Array.isArray(data) ? data[11] : data?.tokensOwed1 || '0'),
   }
@@ -187,19 +194,22 @@ export async function getPosition(chain, { tokenId, rpcUrl }) {
 /**
  * Mint a new concentrated liquidity position.
  */
-export async function mint(chain, {
-  token0,
-  token1,
-  fee,
-  tickLower,
-  tickUpper,
-  amount0Desired,
-  amount1Desired,
-  amount0Min,
-  amount1Min,
-  recipient,
-  rpcUrl,
-}) {
+export async function mint(
+  chain,
+  {
+    token0,
+    token1,
+    fee,
+    tickLower,
+    tickUpper,
+    amount0Desired,
+    amount1Desired,
+    amount0Min,
+    amount1Min,
+    recipient,
+    rpcUrl,
+  },
+) {
   if (!token0) throw new UniswapError('MISSING_TOKEN0', 'token0 is required')
   if (!token1) throw new UniswapError('MISSING_TOKEN1', 'token1 is required')
   if (!fee) throw new UniswapError('MISSING_FEE', 'fee is required')
@@ -243,14 +253,10 @@ export async function mint(chain, {
 /**
  * Add liquidity to an existing position.
  */
-export async function increaseLiquidity(chain, {
-  tokenId,
-  amount0Desired,
-  amount1Desired,
-  amount0Min,
-  amount1Min,
-  rpcUrl,
-}) {
+export async function increaseLiquidity(
+  chain,
+  { tokenId, amount0Desired, amount1Desired, amount0Min, amount1Min, rpcUrl },
+) {
   if (!tokenId) throw new UniswapError('MISSING_TOKEN_ID', 'token-id is required')
 
   const net = resolveChain(chain, rpcUrl)
@@ -286,13 +292,10 @@ export async function increaseLiquidity(chain, {
 /**
  * Remove liquidity from an existing position.
  */
-export async function decreaseLiquidity(chain, {
-  tokenId,
-  liquidity,
-  amount0Min,
-  amount1Min,
-  rpcUrl,
-}) {
+export async function decreaseLiquidity(
+  chain,
+  { tokenId, liquidity, amount0Min, amount1Min, rpcUrl },
+) {
   if (!tokenId) throw new UniswapError('MISSING_TOKEN_ID', 'token-id is required')
   if (!liquidity) throw new UniswapError('MISSING_LIQUIDITY', 'liquidity is required')
 
@@ -307,9 +310,7 @@ export async function decreaseLiquidity(chain, {
       contract: manager,
       method: 'decreaseLiquidity',
       abi: POSITION_MANAGER_ABI,
-      args: [
-        `(${tokenId}, ${liquidity}, ${amount0Min || '0'}, ${amount1Min || '0'}, ${deadline})`,
-      ],
+      args: [`(${tokenId}, ${liquidity}, ${amount0Min || '0'}, ${amount1Min || '0'}, ${deadline})`],
       ...net.params,
     },
     net.network,

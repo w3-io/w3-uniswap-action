@@ -6,10 +6,10 @@ Uniswap V3 is a decentralized exchange protocol with concentrated liquidity. Liq
 
 ## Common inputs
 
-| Input     | Description                                                               |
-| --------- | ------------------------------------------------------------------------- |
-| `chain`   | Blockchain: `ethereum`, `base`, `arbitrum`, `polygon`, `optimism`         |
-| `rpc-url` | Custom RPC URL (recommended for reliability)                              |
+| Input     | Description                                                       |
+| --------- | ----------------------------------------------------------------- |
+| `chain`   | Blockchain: `ethereum`, `base`, `arbitrum`, `polygon`, `optimism` |
+| `rpc-url` | Custom RPC URL (recommended for reliability)                      |
 
 ---
 
@@ -19,15 +19,15 @@ Uniswap V3 is a decentralized exchange protocol with concentrated liquidity. Liq
 
 Execute a single-hop exact-input swap via SwapRouter02.
 
-| Input                | Required | Description                                   |
-| -------------------- | -------- | --------------------------------------------- |
-| `chain`              | yes      | Target chain                                  |
-| `token-in`           | yes      | Input token address                           |
-| `token-out`          | yes      | Output token address                          |
-| `fee`                | yes      | Pool fee tier (100, 500, 3000, 10000)         |
-| `amount-in`          | yes      | Amount of input token (smallest unit)         |
-| `amount-out-minimum` | no       | Minimum output for slippage protection        |
-| `recipient`          | yes      | Address to receive output tokens              |
+| Input                | Required | Description                            |
+| -------------------- | -------- | -------------------------------------- |
+| `chain`              | yes      | Target chain                           |
+| `token-in`           | yes      | Input token address                    |
+| `token-out`          | yes      | Output token address                   |
+| `fee`                | yes      | Pool fee tier (100, 500, 3000, 10000)  |
+| `amount-in`          | yes      | Amount of input token (smallest unit)  |
+| `amount-out-minimum` | no       | Minimum output for slippage protection |
+| `recipient`          | yes      | Address to receive output tokens       |
 
 **Output:** `{ txHash, chain, tokenIn, tokenOut, fee, amountIn, amountOutMinimum, recipient }`
 
@@ -55,10 +55,10 @@ Execute a single-hop exact-input swap via SwapRouter02.
 
 Read a liquidity position by NFT token ID.
 
-| Input      | Required | Description         |
-| ---------- | -------- | ------------------- |
-| `chain`    | yes      | Target chain        |
-| `token-id` | yes      | NFT position ID     |
+| Input      | Required | Description     |
+| ---------- | -------- | --------------- |
+| `chain`    | yes      | Target chain    |
+| `token-id` | yes      | NFT position ID |
 
 **Output:** `{ tokenId, chain, nonce, operator, token0, token1, fee, tickLower, tickUpper, liquidity, tokensOwed0, tokensOwed1 }`
 
@@ -75,19 +75,19 @@ Read a liquidity position by NFT token ID.
 
 Create a new concentrated liquidity position.
 
-| Input             | Required | Description                       |
-| ----------------- | -------- | --------------------------------- |
-| `chain`           | yes      | Target chain                      |
-| `token-in`        | yes      | Token0 address                    |
-| `token-out`       | yes      | Token1 address                    |
-| `fee`             | yes      | Pool fee tier                     |
-| `tick-lower`      | yes      | Lower price tick                  |
-| `tick-upper`      | yes      | Upper price tick                  |
-| `amount0-desired` | yes      | Desired token0 amount             |
-| `amount1-desired` | yes      | Desired token1 amount             |
-| `amount0-min`     | no       | Minimum token0 (slippage)         |
-| `amount1-min`     | no       | Minimum token1 (slippage)         |
-| `recipient`       | yes      | Address to own the position NFT   |
+| Input             | Required | Description                     |
+| ----------------- | -------- | ------------------------------- |
+| `chain`           | yes      | Target chain                    |
+| `token-in`        | yes      | Token0 address                  |
+| `token-out`       | yes      | Token1 address                  |
+| `fee`             | yes      | Pool fee tier                   |
+| `tick-lower`      | yes      | Lower price tick                |
+| `tick-upper`      | yes      | Upper price tick                |
+| `amount0-desired` | yes      | Desired token0 amount           |
+| `amount1-desired` | yes      | Desired token1 amount           |
+| `amount0-min`     | no       | Minimum token0 (slippage)       |
+| `amount1-min`     | no       | Minimum token1 (slippage)       |
+| `recipient`       | yes      | Address to own the position NFT |
 
 **Output:** `{ txHash, chain, token0, token1, fee, tickLower, tickUpper, amount0Desired, amount1Desired, recipient }`
 
@@ -128,13 +128,13 @@ Add liquidity to an existing position.
 
 Remove liquidity from an existing position.
 
-| Input        | Required | Description               |
-| ------------ | -------- | ------------------------- |
-| `chain`      | yes      | Target chain              |
-| `token-id`   | yes      | NFT position ID           |
-| `liquidity`  | yes      | Liquidity amount to remove|
-| `amount0-min`| no       | Minimum token0 (slippage) |
-| `amount1-min`| no       | Minimum token1 (slippage) |
+| Input         | Required | Description                |
+| ------------- | -------- | -------------------------- |
+| `chain`       | yes      | Target chain               |
+| `token-id`    | yes      | NFT position ID            |
+| `liquidity`   | yes      | Liquidity amount to remove |
+| `amount0-min` | no       | Minimum token0 (slippage)  |
+| `amount1-min` | no       | Minimum token1 (slippage)  |
 
 **Output:** `{ txHash, chain, tokenId, liquidity }`
 
@@ -142,11 +142,11 @@ Remove liquidity from an existing position.
 
 Collect accrued fees and tokens from a position. Collects all available amounts.
 
-| Input       | Required | Description            |
-| ----------- | -------- | ---------------------- |
-| `chain`     | yes      | Target chain           |
-| `token-id`  | yes      | NFT position ID        |
-| `recipient` | yes      | Address to receive fees|
+| Input       | Required | Description             |
+| ----------- | -------- | ----------------------- |
+| `chain`     | yes      | Target chain            |
+| `token-id`  | yes      | NFT position ID         |
+| `recipient` | yes      | Address to receive fees |
 
 **Output:** `{ txHash, chain, tokenId, recipient }`
 
@@ -164,15 +164,15 @@ bridge-allow: [ethereum/call-contract]
 
 ## Error codes
 
-| Code                | Meaning                               |
-| ------------------- | ------------------------------------- |
-| `MISSING_CHAIN`     | No chain provided                     |
-| `UNSUPPORTED_CHAIN` | Chain not in supported list           |
-| `MISSING_TOKEN_IN`  | token-in input missing                |
-| `MISSING_TOKEN_OUT` | token-out input missing               |
-| `MISSING_FEE`       | fee input missing                     |
-| `MISSING_AMOUNT_IN` | amount-in input missing               |
-| `MISSING_RECIPIENT` | recipient input missing               |
-| `MISSING_TOKEN_ID`  | token-id input missing                |
-| `MISSING_LIQUIDITY` | liquidity input missing               |
-| `BRIDGE_ERROR`      | Bridge call failed                    |
+| Code                | Meaning                     |
+| ------------------- | --------------------------- |
+| `MISSING_CHAIN`     | No chain provided           |
+| `UNSUPPORTED_CHAIN` | Chain not in supported list |
+| `MISSING_TOKEN_IN`  | token-in input missing      |
+| `MISSING_TOKEN_OUT` | token-out input missing     |
+| `MISSING_FEE`       | fee input missing           |
+| `MISSING_AMOUNT_IN` | amount-in input missing     |
+| `MISSING_RECIPIENT` | recipient input missing     |
+| `MISSING_TOKEN_ID`  | token-id input missing      |
+| `MISSING_LIQUIDITY` | liquidity input missing     |
+| `BRIDGE_ERROR`      | Bridge call failed          |
