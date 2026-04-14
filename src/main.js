@@ -2,6 +2,8 @@ import * as core from '@actions/core'
 import { createCommandRouter, setJsonOutput, handleError } from '@w3-io/action-core'
 import {
   swap,
+  multiHopSwap,
+  quoteSwap,
   getPosition,
   mint,
   increaseLiquidity,
@@ -36,6 +38,28 @@ const handlers = {
       amountIn: core.getInput('amount-in', { required: true }),
       amountOutMinimum: core.getInput('amount-out-minimum') || '0',
       recipient: core.getInput('recipient', { required: true }),
+      rpcUrl: rpcUrl(),
+    })
+    setJsonOutput('result', result)
+  },
+
+  'multi-hop-swap': async () => {
+    const result = await multiHopSwap(chain(), {
+      path: core.getInput('path', { required: true }),
+      amountIn: core.getInput('amount-in', { required: true }),
+      amountOutMinimum: core.getInput('amount-out-minimum') || '0',
+      recipient: core.getInput('recipient', { required: true }),
+      rpcUrl: rpcUrl(),
+    })
+    setJsonOutput('result', result)
+  },
+
+  quote: async () => {
+    const result = await quoteSwap(chain(), {
+      tokenIn: core.getInput('token-in', { required: true }),
+      tokenOut: core.getInput('token-out', { required: true }),
+      fee: core.getInput('fee', { required: true }),
+      amountIn: core.getInput('amount-in', { required: true }),
       rpcUrl: rpcUrl(),
     })
     setJsonOutput('result', result)

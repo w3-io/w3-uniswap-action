@@ -16,7 +16,10 @@ import {
   SWAP_ROUTER,
   POSITION_MANAGER,
   SWAP_ROUTER_ABI,
+  SWAP_ROUTER_MULTI_ABI,
   POSITION_MANAGER_ABI,
+  QUOTER,
+  QUOTER_ABI,
 } from './registry.js'
 
 export class UniswapError extends W3ActionError {
@@ -137,9 +140,7 @@ export async function swap(
       contract: router,
       method: 'exactInputSingle',
       abi: SWAP_ROUTER_ABI,
-      args: [
-        [tokenIn, tokenOut, fee, recipient, amountIn, amountOutMinimum || '0', '0'],
-      ],
+      args: [[tokenIn, tokenOut, fee, recipient, amountIn, amountOutMinimum || '0', '0']],
       ...net.params,
     },
     net.network,
@@ -254,7 +255,19 @@ export async function mint(
       method: 'mint',
       abi: POSITION_MANAGER_ABI,
       args: [
-        [token0, token1, fee, tickLower || '0', tickUpper || '0', amount0Desired || '0', amount1Desired || '0', amount0Min || '0', amount1Min || '0', recipient, deadline],
+        [
+          token0,
+          token1,
+          fee,
+          tickLower || '0',
+          tickUpper || '0',
+          amount0Desired || '0',
+          amount1Desired || '0',
+          amount0Min || '0',
+          amount1Min || '0',
+          recipient,
+          deadline,
+        ],
       ],
       ...net.params,
     },
@@ -301,7 +314,14 @@ export async function increaseLiquidity(
       method: 'increaseLiquidity',
       abi: POSITION_MANAGER_ABI,
       args: [
-        [tokenId, amount0Desired || '0', amount1Desired || '0', amount0Min || '0', amount1Min || '0', deadline],
+        [
+          tokenId,
+          amount0Desired || '0',
+          amount1Desired || '0',
+          amount0Min || '0',
+          amount1Min || '0',
+          deadline,
+        ],
       ],
       ...net.params,
     },
@@ -342,9 +362,7 @@ export async function decreaseLiquidity(
       contract: manager,
       method: 'decreaseLiquidity',
       abi: POSITION_MANAGER_ABI,
-      args: [
-        [tokenId, liquidity, amount0Min || '0', amount1Min || '0', deadline],
-      ],
+      args: [[tokenId, liquidity, amount0Min || '0', amount1Min || '0', deadline]],
       ...net.params,
     },
     net.network,
@@ -357,6 +375,106 @@ export async function decreaseLiquidity(
     chain,
     tokenId,
     liquidity,
+  }
+}
+
+// ── Multi-hop swap ───────────────────────────────────────────────
+
+/**
+ * Encode a multi-hop swap path.
+ * path format: [{token, fee}, {token, fee}, ..., {token}]
+ * Encoded as: token0 (20 bytes) + fee0 (3 bytes) + token1 (20 bytes) + fee1 (3 bytes) + token2 (20 bytes)
+ */
+export function encodePath(pathSegments) {
+  const segments = typeof pathSegments === 'string' ? JSON.parse(pathSegments) : pathSegments
+  let encoded = '0x'
+  for (let i = 0; i < segments.length; i++) {
+    // Add token address (remove 0x prefix)
+    encoded += segments[i].token.slice(2).toLowerCase()
+    // Add fee (3 bytes = 6 hex chars) if not the last segment
+    if (i < segments.length - 1) {
+      const fee = parseInt(segments[i].fee, 10)
+      encoded += fee.toString(16).padStart(6, '0')
+    }
+  }
+  return encoded
+}
+
+/**
+ * Execute a multi-hop exact-input swap via SwapRouter02.exactInput.
+ */
+export async function multiHopSwap(chain, { path, amountIn, amountOutMinimum, recipient, rpcUrl }) {
+  if (!path) throw new UniswapError('MISSING_PATH', 'path is required')
+  if (!amountIn) throw new UniswapError('MISSING_AMOUNT', 'amountIn is required')
+  if (!recipient) throw new UniswapError('MISSING_RECIPIENT', 'recipient is required')
+
+  const net = resolveChain(chain, rpcUrl)
+  const router = getSwapRouter(chain)
+  const encodedPath = encodePath(path)
+
+  const receipt = unwrapBridgeResult(
+    await bridge.chain(
+      'ethereum',
+      'call-contract',
+      {
+        contract: router,
+        method: 'exactInput',
+        abi: SWAP_ROUTER_MULTI_ABI,
+        args: [[encodedPath, recipient, amountIn, amountOutMinimum || '0']],
+        ...net.params,
+      },
+      net.network,
+    ),
+  )
+
+  return {
+    txHash: extractTxHash(receipt),
+    chain,
+    path,
+    amountIn,
+    amountOutMinimum: amountOutMinimum || '0',
+    recipient,
+  }
+}
+
+// ── Quote ────────────────────────────────────────────────────────
+
+/**
+ * Simulate a single-hop swap via QuoterV2.quoteExactInputSingle.
+ * Returns expected output without executing the swap.
+ */
+export async function quoteSwap(chain, { tokenIn, tokenOut, fee, amountIn, rpcUrl }) {
+  if (!tokenIn) throw new UniswapError('MISSING_TOKEN_IN', 'tokenIn is required')
+  if (!tokenOut) throw new UniswapError('MISSING_TOKEN_OUT', 'tokenOut is required')
+  if (!fee) throw new UniswapError('MISSING_FEE', 'fee is required')
+  if (!amountIn) throw new UniswapError('MISSING_AMOUNT', 'amountIn is required')
+
+  const net = resolveChain(chain, rpcUrl)
+  const quoter = QUOTER[chain.toLowerCase()]
+  if (!quoter) throw new UniswapError('UNSUPPORTED_CHAIN', `No QuoterV2 for ${chain}`)
+
+  const result = unwrapBridgeResult(
+    await bridge.chain(
+      'ethereum',
+      'read-contract',
+      {
+        contract: quoter,
+        method: 'quoteExactInputSingle',
+        abi: QUOTER_ABI,
+        args: [[tokenIn, tokenOut, amountIn, fee, '0']],
+        ...net.params,
+      },
+      net.network,
+    ),
+  )
+
+  return {
+    amountOut: result.result || result,
+    chain,
+    tokenIn,
+    tokenOut,
+    fee,
+    amountIn,
   }
 }
 
@@ -382,9 +500,7 @@ export async function collect(chain, { tokenId, recipient, rpcUrl }) {
       contract: manager,
       method: 'collect',
       abi: POSITION_MANAGER_ABI,
-      args: [
-        [tokenId, recipient, MAX_UINT128, MAX_UINT128],
-      ],
+      args: [[tokenId, recipient, MAX_UINT128, MAX_UINT128]],
       ...net.params,
     },
     net.network,

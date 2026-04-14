@@ -47,6 +47,70 @@ Execute a single-hop exact-input swap via SwapRouter02.
     recipient: '0xYourAddress'
 ```
 
+### `multi-hop-swap`
+
+Execute a multi-hop exact-input swap via SwapRouter02. Routes through multiple pools using packed path encoding.
+
+| Input                | Required | Description                                       |
+| -------------------- | -------- | ------------------------------------------------- |
+| `chain`              | yes      | Target chain                                      |
+| `path`               | yes      | JSON array of `{token, fee}` segments (see below) |
+| `amount-in`          | yes      | Amount of input token (smallest unit)             |
+| `amount-out-minimum` | no       | Minimum output for slippage protection            |
+| `recipient`          | yes      | Address to receive output tokens                  |
+
+The `path` is a JSON array where each element has a `token` address and a `fee` tier, except the last element which only has `token`. For example, to swap USDC -> WETH -> DAI:
+
+```json
+[
+  { "token": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "fee": "500" },
+  { "token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "fee": "3000" },
+  { "token": "0x6B175474E89094C44Da98b954EedeAC495271d0F" }
+]
+```
+
+**Output:** `{ txHash, chain, path, amountIn, amountOutMinimum, recipient }`
+
+```yaml
+- uses: w3-io/w3-uniswap-action@v0
+  env:
+    W3_SECRET_ETHEREUM: ${{ secrets.W3_SECRET_ETHEREUM }}
+  bridge-allow: [ethereum/call-contract]
+  with:
+    command: multi-hop-swap
+    chain: ethereum
+    path: '[{"token":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","fee":"500"},{"token":"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2","fee":"3000"},{"token":"0x6B175474E89094C44Da98b954EedeAC495271d0F"}]'
+    amount-in: '1000000000'
+    amount-out-minimum: '900000000000000000'
+    recipient: '0xYourAddress'
+```
+
+### `quote`
+
+Simulate a single-hop swap via QuoterV2 without executing. Returns expected output amount without spending gas.
+
+| Input       | Required | Description                           |
+| ----------- | -------- | ------------------------------------- |
+| `chain`     | yes      | Target chain                          |
+| `token-in`  | yes      | Input token address                   |
+| `token-out` | yes      | Output token address                  |
+| `fee`       | yes      | Pool fee tier (100, 500, 3000, 10000) |
+| `amount-in` | yes      | Amount of input token (smallest unit) |
+
+**Output:** `{ amountOut, chain, tokenIn, tokenOut, fee, amountIn }`
+
+```yaml
+- uses: w3-io/w3-uniswap-action@v0
+  id: quote
+  with:
+    command: quote
+    chain: ethereum
+    token-in: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+    token-out: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+    fee: '3000'
+    amount-in: '1000000000'
+```
+
 ---
 
 ## Position commands
@@ -172,6 +236,8 @@ bridge-allow: [ethereum/call-contract]
 | `MISSING_TOKEN_OUT` | token-out input missing     |
 | `MISSING_FEE`       | fee input missing           |
 | `MISSING_AMOUNT_IN` | amount-in input missing     |
+| `MISSING_AMOUNT`    | amountIn input missing      |
+| `MISSING_PATH`      | path input missing          |
 | `MISSING_RECIPIENT` | recipient input missing     |
 | `MISSING_TOKEN_ID`  | token-id input missing      |
 | `MISSING_LIQUIDITY` | liquidity input missing     |

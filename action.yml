@@ -4,13 +4,18 @@ author: 'w3-io'
 
 inputs:
   command:
-    description: 'Operation: swap, get-position, mint, increase-liquidity, decrease-liquidity, collect'
+    description: 'Operation: swap, multi-hop-swap, quote, get-position, mint, increase-liquidity, decrease-liquidity, collect'
     required: true
   chain:
     description: 'Target chain: ethereum, base, arbitrum, polygon, optimism'
     required: true
   rpc-url:
     description: 'Custom RPC URL (recommended for reliability)'
+    required: false
+
+  # Multi-hop swap inputs
+  path:
+    description: 'JSON array of {token, fee} segments for multi-hop swap path'
     required: false
 
   # Swap inputs

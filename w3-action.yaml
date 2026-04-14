@@ -48,6 +48,78 @@ commands:
         type: object
         description: Swap transaction result with amounts and tx hash
 
+  - name: multi-hop-swap
+    description: >
+      Execute a multi-hop exact-input swap via Uniswap V3 SwapRouter02.
+      Routes through multiple pools using packed path encoding
+      (token + fee + token + fee + token).
+    inputs:
+      chain:
+        type: string
+        required: true
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      path:
+        type: string
+        required: true
+        description: >
+          JSON array of path segments: [{token, fee}, {token, fee}, ..., {token}].
+          Each segment has a token address and fee tier (except the last).
+      amount-in:
+        type: string
+        required: true
+        description: Amount of input token in smallest unit
+      recipient:
+        type: string
+        required: true
+        description: Recipient address for swap output
+      amount-out-minimum:
+        type: string
+        required: false
+        description: Minimum output amount for slippage protection (default 0)
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
+    outputs:
+      result:
+        type: object
+        description: Multi-hop swap transaction result with path and tx hash
+
+  - name: quote
+    description: >
+      Simulate a single-hop swap via Uniswap V3 QuoterV2 without
+      executing. Returns expected output amount, price impact,
+      and gas estimate.
+    inputs:
+      chain:
+        type: string
+        required: true
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      token-in:
+        type: string
+        required: true
+        description: Input token address
+      token-out:
+        type: string
+        required: true
+        description: Output token address
+      fee:
+        type: string
+        required: true
+        description: Pool fee tier (100, 500, 3000, or 10000)
+      amount-in:
+        type: string
+        required: true
+        description: Amount of input token in smallest unit
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
+    outputs:
+      result:
+        type: object
+        description: Quote result with expected amountOut
+
   - name: get-position
     description: >
       Read details of an existing Uniswap V3 concentrated liquidity

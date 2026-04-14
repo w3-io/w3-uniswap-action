@@ -68,6 +68,65 @@ export const SWAP_ROUTER_ABI = JSON.stringify([
   },
 ])
 
+// ── SwapRouter02 ABI (exactInput for multi-hop swaps) ────────────
+export const SWAP_ROUTER_MULTI_ABI = JSON.stringify([
+  {
+    name: 'exactInput',
+    type: 'function',
+    stateMutability: 'payable',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'path', type: 'bytes' },
+          { name: 'recipient', type: 'address' },
+          { name: 'amountIn', type: 'uint256' },
+          { name: 'amountOutMinimum', type: 'uint256' },
+        ],
+      },
+    ],
+    outputs: [{ name: 'amountOut', type: 'uint256' }],
+  },
+])
+
+// ── QuoterV2 addresses ───────────────────────────────────────────
+export const QUOTER = {
+  ethereum: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
+  base: '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a',
+  arbitrum: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
+  polygon: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
+  optimism: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
+}
+
+// ── QuoterV2 ABI ─────────────────────────────────────────────────
+export const QUOTER_ABI = JSON.stringify([
+  {
+    name: 'quoteExactInputSingle',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'tokenIn', type: 'address' },
+          { name: 'tokenOut', type: 'address' },
+          { name: 'amountIn', type: 'uint256' },
+          { name: 'fee', type: 'uint24' },
+          { name: 'sqrtPriceLimitX96', type: 'uint160' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'amountOut', type: 'uint256' },
+      { name: 'sqrtPriceX96After', type: 'uint160' },
+      { name: 'initializedTicksCrossed', type: 'uint32' },
+      { name: 'gasEstimate', type: 'uint256' },
+    ],
+  },
+])
+
 // ── NonfungiblePositionManager ABI ────────────────────────────────
 export const POSITION_MANAGER_ABI = JSON.stringify([
   {
