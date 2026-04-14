@@ -28260,7 +28260,32 @@ function extractTxHash(receipt) {
       return rx
     }
   }
-  return rx?.txHash || rx?.tx_hash || rx?.transactionId || String(receipt)
+  const hash = rx?.txHash || rx?.tx_hash || rx?.transactionId
+  if (hash && typeof hash === 'object') return String(hash)
+  return hash || String(receipt)
+}
+
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+
+function extractTokenId(receipt) {
+  let logs = receipt?.logs
+  if (!logs) return null
+  if (typeof logs === 'string') {
+    try {
+      logs = JSON.parse(logs)
+    } catch {
+      return null
+    }
+  }
+  if (!Array.isArray(logs)) return null
+  for (const log of logs) {
+    const topics = log?.topics
+    if (!Array.isArray(topics) || topics.length < 4) continue
+    if (topics[0] === TRANSFER_TOPIC) {
+      return BigInt(topics[3]).toString()
+    }
+  }
+  return null
 }
 
 // ── Deadline helper ───────────────────────────────────────────────
@@ -28419,6 +28444,7 @@ async function mint(
 
   return {
     txHash: extractTxHash(receipt),
+    tokenId: extractTokenId(receipt),
     chain,
     token0,
     token1,
