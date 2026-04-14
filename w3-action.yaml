@@ -1,44 +1,228 @@
-# TODO: This file describes your action for the W3 MCP server.
-# AI agents use this to discover your action, understand its commands,
-# and generate correct workflow YAML. Keep it in sync with action.yml.
-#
-# On release, this file is synced to the MCP's registry.yaml.
-
-kind: integration # integration | primitive | utility
-partner: yourpartner # TODO: machine-readable partner ID
-name: YourPartner Integration # TODO: human-readable name
-version: 1.0.0
-repo: w3-io/w3-yourpartner-action # TODO: your repo
+kind: integration
+partner: uniswap
+name: Uniswap V3 Integration
+version: 0.1.0
+repo: w3-io/w3-uniswap-action
 
 commands:
-  # TODO: Define each command your action supports. Example:
-  #
-  # - name: inspect
-  #   description: >
-  #     Risk assessment for a blockchain address. Returns per-chain
-  #     scores for fraud, compliance, and cyber risk.
-  #   inputs:
-  #     address:
-  #       type: string
-  #       required: true
-  #       description: Blockchain address to inspect
-  #     chain-id:
-  #       type: string
-  #       required: false
-  #       description: Filter to a specific chain
-  #   outputs:
-  #     result:
-  #       type: object
-  #       description: Full risk score breakdown
-
-  - name: example-command
-    description: TODO - describe what this command does
+  - name: swap
+    description: >
+      Execute an exact-input single-hop swap via Uniswap V3 SwapRouter02.
+      Swaps a precise amount of one token for a minimum amount of another
+      within a specified fee-tier pool.
     inputs:
-      input:
+      chain:
         type: string
         required: true
-        description: TODO - describe this input
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      token-in:
+        type: string
+        required: true
+        description: Input token address
+      token-out:
+        type: string
+        required: true
+        description: Output token address
+      fee:
+        type: string
+        required: true
+        description: Pool fee tier (100, 500, 3000, or 10000)
+      amount-in:
+        type: string
+        required: true
+        description: Amount of input token in smallest unit
+      recipient:
+        type: string
+        required: true
+        description: Recipient address for swap output
+      amount-out-minimum:
+        type: string
+        required: false
+        description: Minimum output amount for slippage protection (default 0)
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
     outputs:
       result:
         type: object
-        description: TODO - describe the output shape
+        description: Swap transaction result with amounts and tx hash
+
+  - name: get-position
+    description: >
+      Read details of an existing Uniswap V3 concentrated liquidity
+      position by its NFT token ID.
+    inputs:
+      chain:
+        type: string
+        required: true
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      token-id:
+        type: string
+        required: true
+        description: NFT position token ID
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
+    outputs:
+      result:
+        type: object
+        description: Position details including tokens, ticks, liquidity, and fees owed
+
+  - name: mint
+    description: >
+      Create a new Uniswap V3 concentrated liquidity position via the
+      NonfungiblePositionManager. Specifies a price range (tick bounds)
+      and desired token amounts.
+    inputs:
+      chain:
+        type: string
+        required: true
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      token-in:
+        type: string
+        required: true
+        description: Token0 address for the position
+      token-out:
+        type: string
+        required: true
+        description: Token1 address for the position
+      fee:
+        type: string
+        required: true
+        description: Pool fee tier (100, 500, 3000, or 10000)
+      tick-lower:
+        type: string
+        required: true
+        description: Lower tick bound for concentrated liquidity range
+      tick-upper:
+        type: string
+        required: true
+        description: Upper tick bound for concentrated liquidity range
+      amount0-desired:
+        type: string
+        required: true
+        description: Desired amount of token0 to deposit
+      amount1-desired:
+        type: string
+        required: true
+        description: Desired amount of token1 to deposit
+      recipient:
+        type: string
+        required: true
+        description: Recipient address for the minted position NFT
+      amount0-min:
+        type: string
+        required: false
+        description: Minimum amount of token0 for slippage protection (default 0)
+      amount1-min:
+        type: string
+        required: false
+        description: Minimum amount of token1 for slippage protection (default 0)
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
+    outputs:
+      result:
+        type: object
+        description: Minted position with tokenId, liquidity, and deposited amounts
+
+  - name: increase-liquidity
+    description: >
+      Add liquidity to an existing Uniswap V3 position. Deposits
+      additional token0 and token1 into the position's price range.
+    inputs:
+      chain:
+        type: string
+        required: true
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      token-id:
+        type: string
+        required: true
+        description: NFT position token ID
+      amount0-desired:
+        type: string
+        required: true
+        description: Desired amount of token0 to add
+      amount1-desired:
+        type: string
+        required: true
+        description: Desired amount of token1 to add
+      amount0-min:
+        type: string
+        required: false
+        description: Minimum amount of token0 for slippage protection (default 0)
+      amount1-min:
+        type: string
+        required: false
+        description: Minimum amount of token1 for slippage protection (default 0)
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
+    outputs:
+      result:
+        type: object
+        description: Updated position with new liquidity and deposited amounts
+
+  - name: decrease-liquidity
+    description: >
+      Remove liquidity from an existing Uniswap V3 position. Withdraws
+      a specified amount of liquidity back into the underlying tokens.
+    inputs:
+      chain:
+        type: string
+        required: true
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      token-id:
+        type: string
+        required: true
+        description: NFT position token ID
+      liquidity:
+        type: string
+        required: true
+        description: Amount of liquidity to remove
+      amount0-min:
+        type: string
+        required: false
+        description: Minimum amount of token0 for slippage protection (default 0)
+      amount1-min:
+        type: string
+        required: false
+        description: Minimum amount of token1 for slippage protection (default 0)
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
+    outputs:
+      result:
+        type: object
+        description: Withdrawn token amounts and updated position state
+
+  - name: collect
+    description: >
+      Collect owed tokens (fees and withdrawn liquidity) from a
+      Uniswap V3 position.
+    inputs:
+      chain:
+        type: string
+        required: true
+        description: Target chain (ethereum, base, arbitrum, polygon, optimism)
+      token-id:
+        type: string
+        required: true
+        description: NFT position token ID
+      recipient:
+        type: string
+        required: true
+        description: Recipient address for collected tokens
+      rpc-url:
+        type: string
+        required: false
+        description: Custom RPC URL (recommended for reliability)
+    outputs:
+      result:
+        type: object
+        description: Collected token0 and token1 amounts
