@@ -138,15 +138,17 @@ export async function swap(
       method: 'exactInputSingle',
       abi: SWAP_ROUTER_ABI,
       args: [
-        `(${tokenIn}, ${tokenOut}, ${fee}, ${recipient}, ${amountIn}, ${amountOutMinimum || '0'}, 0)`,
+        [tokenIn, tokenOut, fee, recipient, amountIn, amountOutMinimum || '0', '0'],
       ],
       ...net.params,
     },
     net.network,
   )
 
+  const result = unwrapBridgeResult(receipt)
+
   return {
-    txHash: extractTxHash(receipt),
+    txHash: extractTxHash(result),
     chain,
     tokenIn,
     tokenOut,
@@ -252,16 +254,18 @@ export async function mint(
       method: 'mint',
       abi: POSITION_MANAGER_ABI,
       args: [
-        `(${token0}, ${token1}, ${fee}, ${tickLower || '0'}, ${tickUpper || '0'}, ${amount0Desired || '0'}, ${amount1Desired || '0'}, ${amount0Min || '0'}, ${amount1Min || '0'}, ${recipient}, ${deadline})`,
+        [token0, token1, fee, tickLower || '0', tickUpper || '0', amount0Desired || '0', amount1Desired || '0', amount0Min || '0', amount1Min || '0', recipient, deadline],
       ],
       ...net.params,
     },
     net.network,
   )
 
+  const result = unwrapBridgeResult(receipt)
+
   return {
-    txHash: extractTxHash(receipt),
-    tokenId: extractTokenId(receipt),
+    txHash: extractTxHash(result),
+    tokenId: extractTokenId(result),
     chain,
     token0,
     token1,
@@ -297,15 +301,17 @@ export async function increaseLiquidity(
       method: 'increaseLiquidity',
       abi: POSITION_MANAGER_ABI,
       args: [
-        `(${tokenId}, ${amount0Desired || '0'}, ${amount1Desired || '0'}, ${amount0Min || '0'}, ${amount1Min || '0'}, ${deadline})`,
+        [tokenId, amount0Desired || '0', amount1Desired || '0', amount0Min || '0', amount1Min || '0', deadline],
       ],
       ...net.params,
     },
     net.network,
   )
 
+  const result = unwrapBridgeResult(receipt)
+
   return {
-    txHash: extractTxHash(receipt),
+    txHash: extractTxHash(result),
     chain,
     tokenId,
     amount0Desired: amount0Desired || '0',
@@ -336,14 +342,18 @@ export async function decreaseLiquidity(
       contract: manager,
       method: 'decreaseLiquidity',
       abi: POSITION_MANAGER_ABI,
-      args: [`(${tokenId}, ${liquidity}, ${amount0Min || '0'}, ${amount1Min || '0'}, ${deadline})`],
+      args: [
+        [tokenId, liquidity, amount0Min || '0', amount1Min || '0', deadline],
+      ],
       ...net.params,
     },
     net.network,
   )
 
+  const result = unwrapBridgeResult(receipt)
+
   return {
-    txHash: extractTxHash(receipt),
+    txHash: extractTxHash(result),
     chain,
     tokenId,
     liquidity,
@@ -372,14 +382,18 @@ export async function collect(chain, { tokenId, recipient, rpcUrl }) {
       contract: manager,
       method: 'collect',
       abi: POSITION_MANAGER_ABI,
-      args: [`(${tokenId}, ${recipient}, ${MAX_UINT128}, ${MAX_UINT128})`],
+      args: [
+        [tokenId, recipient, MAX_UINT128, MAX_UINT128],
+      ],
       ...net.params,
     },
     net.network,
   )
 
+  const result = unwrapBridgeResult(receipt)
+
   return {
-    txHash: extractTxHash(receipt),
+    txHash: extractTxHash(result),
     chain,
     tokenId,
     recipient,
