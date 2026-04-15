@@ -1,4 +1,5 @@
 # E2E Test Workflow
+# Recovery: all write tests round-trip to recover funds. Only gas is consumed.
 #
 # Exercises every command against real APIs/contracts.
 # Run on a local W3 network with:
@@ -59,7 +60,24 @@ jobs:
           amount-out-minimum: '0'
           recipient: '0xe4E402962943c4EB2253f666575eE12700e78e90'
 
-      # 2. Multi-hop swap: WETH -> USDC -> USDbC
+      # 2. Recovery: reverse swap USDC -> WETH (same amount out from step 1)
+      - uses: w3-io/w3-uniswap-action@main
+        id: swap-reverse
+        env:
+          W3_SECRET_ETHEREUM: ${{ secrets.W3_SECRET_ETHEREUM }}
+        bridge-allow:
+          - ethereum/call-contract
+        with:
+          command: swap
+          chain: base
+          token-in: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+          token-out: '0x4200000000000000000000000000000000000006'
+          fee: '500'
+          amount-in: ${{ fromJSON(steps.swap.outputs.result).amountOut }}
+          amount-out-minimum: '0'
+          recipient: '0xe4E402962943c4EB2253f666575eE12700e78e90'
+
+      # 3. Multi-hop swap: WETH -> USDC -> USDbC
       - uses: w3-io/w3-uniswap-action@main
         id: multi-hop
         env:
@@ -74,11 +92,30 @@ jobs:
           amount-out-minimum: '0'
           recipient: '0xe4E402962943c4EB2253f666575eE12700e78e90'
 
+      # 4. Recovery: reverse multi-hop USDbC -> USDC -> WETH
+      - uses: w3-io/w3-uniswap-action@main
+        id: multi-hop-reverse
+        env:
+          W3_SECRET_ETHEREUM: ${{ secrets.W3_SECRET_ETHEREUM }}
+        bridge-allow:
+          - ethereum/call-contract
+        with:
+          command: multi-hop-swap
+          chain: base
+          path: '[{"token":"0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA","fee":100},{"token":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","fee":500},{"token":"0x4200000000000000000000000000000000000006"}]'
+          amount-in: ${{ fromJSON(steps.multi-hop.outputs.result).amountOut }}
+          amount-out-minimum: '0'
+          recipient: '0xe4E402962943c4EB2253f666575eE12700e78e90'
+
       - run: |
           echo "=== Swap ==="
           echo "${{ steps.swap.outputs.result }}"
+          echo "=== Swap Reverse ==="
+          echo "${{ steps.swap-reverse.outputs.result }}"
           echo "=== Multi-Hop Swap ==="
           echo "${{ steps.multi-hop.outputs.result }}"
+          echo "=== Multi-Hop Reverse ==="
+          echo "${{ steps.multi-hop-reverse.outputs.result }}"
 
   # ── Write: liquidity lifecycle ──────────────────────────────────
   # mint -> get-position -> increase-liquidity -> decrease-liquidity -> collect
@@ -130,7 +167,15 @@ jobs:
           amount0-min: '0'
           amount1-min: '0'
 
-      # 4. Decrease liquidity (remove half)
+      # 4. Get position after increase (to know total liquidity)
+      - uses: w3-io/w3-uniswap-action@main
+        id: get-position-after
+        with:
+          command: get-position
+          chain: base
+          token-id: ${{ fromJSON(steps.mint.outputs.result).tokenId }}
+
+      # 5. Decrease ALL liquidity (recovery: remove everything)
       - uses: w3-io/w3-uniswap-action@main
         id: decrease
         env:
@@ -141,9 +186,9 @@ jobs:
           command: decrease-liquidity
           chain: base
           token-id: ${{ fromJSON(steps.mint.outputs.result).tokenId }}
-          liquidity: ${{ fromJSON(steps.get-position.outputs.result).liquidity }}
+          liquidity: ${{ fromJSON(steps.get-position-after.outputs.result).liquidity }}
 
-      # 5. Collect fees and tokens
+      # 6. Collect all tokens (recovery: returns both tokens to wallet)
       - uses: w3-io/w3-uniswap-action@main
         id: collect
         env:
@@ -161,6 +206,8 @@ jobs:
           echo "${{ steps.mint.outputs.result }}"
           echo "=== Get Position ==="
           echo "${{ steps.get-position.outputs.result }}"
+          echo "=== Get Position After Increase ==="
+          echo "${{ steps.get-position-after.outputs.result }}"
           echo "=== Increase Liquidity ==="
           echo "${{ steps.increase.outputs.result }}"
           echo "=== Decrease Liquidity ==="
