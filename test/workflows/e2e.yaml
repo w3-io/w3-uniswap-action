@@ -30,6 +30,7 @@ jobs:
         with:
           command: quote
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-in: '0x4200000000000000000000000000000000000006'
           token-out: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
           fee: '500'
@@ -53,6 +54,7 @@ jobs:
         with:
           command: swap
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-in: '0x4200000000000000000000000000000000000006'
           token-out: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
           fee: '500'
@@ -82,6 +84,7 @@ jobs:
         with:
           command: swap
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-in: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
           token-out: '0x4200000000000000000000000000000000000006'
           fee: '500'
@@ -99,6 +102,7 @@ jobs:
         with:
           command: multi-hop-swap
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           path: '[{"token":"0x4200000000000000000000000000000000000006","fee":500},{"token":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","fee":100},{"token":"0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA"}]'
           amount-in: '100000000000000'
           amount-out-minimum: '0'
@@ -114,6 +118,7 @@ jobs:
         with:
           command: multi-hop-swap
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           path: '[{"token":"0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA","fee":100},{"token":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","fee":500},{"token":"0x4200000000000000000000000000000000000006"}]'
           amount-in: ${{ fromJSON(steps.multi-hop.outputs.result).amountOut }}
           amount-out-minimum: '0'
@@ -144,6 +149,7 @@ jobs:
         with:
           command: mint
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-in: '0x4200000000000000000000000000000000000006'
           token-out: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
           fee: '500'
@@ -161,6 +167,7 @@ jobs:
         with:
           command: get-position
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-id: ${{ fromJSON(steps.mint.outputs.result).tokenId }}
 
       # 3. Increase liquidity on the position
@@ -173,6 +180,7 @@ jobs:
         with:
           command: increase-liquidity
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-id: ${{ fromJSON(steps.mint.outputs.result).tokenId }}
           amount0-desired: '50000000000000'
           amount1-desired: '50000'
@@ -185,6 +193,7 @@ jobs:
         with:
           command: get-position
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-id: ${{ fromJSON(steps.mint.outputs.result).tokenId }}
 
       # 5. Decrease ALL liquidity (recovery: remove everything)
@@ -197,6 +206,7 @@ jobs:
         with:
           command: decrease-liquidity
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-id: ${{ fromJSON(steps.mint.outputs.result).tokenId }}
           liquidity: ${{ fromJSON(steps.get-position-after.outputs.result).liquidity }}
 
@@ -210,6 +220,7 @@ jobs:
         with:
           command: collect
           chain: base
+          rpc-url: ${{ secrets.ALCHEMY_BASE_RPC }}
           token-id: ${{ fromJSON(steps.mint.outputs.result).tokenId }}
           recipient: '0xe4E402962943c4EB2253f666575eE12700e78e90'
 
