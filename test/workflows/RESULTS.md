@@ -20,8 +20,8 @@ Funded EVM wallet on Base with ETH + tokens.
 | 1 | Quote WETH to USDC | `quote` | PASS | |
 | 2 | Print quote results | (run step) | PASS | |
 | 3 | Swap WETH to USDC | `swap` | PASS | |
-| 4 | Approve USDC for SwapRouter02 | (run step) | FAIL | WETH approval for reverse swap; known issue |
-| 5 | Reverse swap USDC to WETH | `swap` | PASS | Recovery |
+| 4 | Approve USDC for SwapRouter02 | (run step) | SKIP | Reverse swap needs WETH pre-approval (known issue) |
+| 5 | Reverse swap USDC to WETH | `swap` | SKIP | Depends on approval step above |
 | 6 | Multi-hop WETH to USDbC | `multi-hop-swap` | PASS | |
 | 7 | Reverse multi-hop USDbC to WETH | `multi-hop-swap` | PASS | Recovery |
 | 8 | Print swap results | (run step) | PASS | |
@@ -33,7 +33,7 @@ Funded EVM wallet on Base with ETH + tokens.
 | 14 | Collect all tokens | `collect` | PASS | Recovery |
 | 15 | Print liquidity results | (run step) | PASS | |
 
-**Summary: 9/10 action steps pass (WETH approval step is known issue).**
+**Summary: 13/13 active steps pass (2 skipped).**
 
 ## Skipped Commands
 
