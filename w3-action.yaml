@@ -3,7 +3,17 @@ partner: uniswap
 name: Uniswap V3 Integration
 version: 0.1.0
 repo: w3-io/w3-uniswap-action
-
+description: >
+  Uniswap V3 decentralized exchange on Ethereum, Base, Polygon,
+  Arbitrum, and Optimism. Swap tokens, manage liquidity positions,
+  and get quotes with price impact estimation.
+context: >
+  Use Uniswap for direct on-chain token swaps when you want to
+  interact with a specific DEX. For best-price routing across
+  multiple DEXes, use 1inch or CoW Swap instead. All swaps go
+  through the W3 bridge — no private keys in the container. Swaps
+  are irreversible once confirmed. Requires ALCHEMY_BASE_RPC for
+  Base and W3_SECRET_ETHEREUM for signing.
 commands:
   - name: swap
     description: >
